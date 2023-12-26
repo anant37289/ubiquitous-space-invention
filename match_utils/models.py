@@ -15,3 +15,10 @@ def load_gan(mode,device='cpu',path: Text='.'):
     elif mode=="stylegan-lsun_horse":
         pass
     return gan,gan_layers
+def load_discr(mode, device, path:Text='.'):
+    if mode == "resnet50":
+        discr=resnet50(num_classes=1000,pretrained='imagenet').to(device)
+        discr_layers = [ "layer1", "layer2", "layer3", "layer4"]
+        for p in discr.parameters(): 
+            p.data = p.data.float()
+    return discr, discr_layers
