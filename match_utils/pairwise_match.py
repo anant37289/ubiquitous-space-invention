@@ -1,4 +1,4 @@
-import matching,dataset,nethook
+from match_utils import matching,dataset,nethook
 import pickle
 import os
 import torch
@@ -27,18 +27,21 @@ def unit_layer_map(model_activs):
             ul_map[base_unit+channel]=(layer,channel)
         base_unit+=model_activs[layer].shape[1]
     return ul_map
-def BB_viz(gan,gan_layers,discr,discr_layers,gan_mode,discr_mode,gan_stats,discr_stats,BB_matches,viz_size=10):
+def BB_viz(gan,gan_layers,discr,discr_layers,gan_mode,discr_mode,gan_stats,discr_stats,BB_matches,device,\
+viz_size=10):
     gan.eval()
     discr.eval()
 
-    #### hook layers for GAN
-    gan = nethook.InstrumentedModel(gan)
-    gan.retain_layers(gan_layers)
+    #### hook layers for GAN if not already hooked
+    if not isinstance(gan,nethook.InstrumentedModel):
+        gan = nethook.InstrumentedModel(gan)
+        gan.retain_layers(gan_layers)
     
-    #### hook layers for discriminator
-    discr = nethook.InstrumentedModel(discr)
-    discr.retain_layers(discr_layers)
-    z,c = dataset.create_dataset(gan,gan_mode,1,1,201,device=gan.device)
+    #### hook layers for discriminator if not already hooked
+    if not isinstance(discr,nethook.InstrumentedModel):
+      discr = nethook.InstrumentedModel(discr)
+      discr.retain_layers(discr_layers)
+    z,c = dataset.create_dataset(gan,gan_mode,1,1,5,device=device)
     z=z.float()
     c=c.float()
     
